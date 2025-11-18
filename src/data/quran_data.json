@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1,
+    "surah_number": 1,
+    "meta": {
+      "surah_name_ar": "سُورَةُ ٱلْفَاتِحَةِ",
+      "surah_name_en": "Al-Fatiha",
+      "surah_meaning": "The Opener",
+      "audio_bismillah": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"
+    },
+    "ayahs": [
+      {
+        "id": 1,
+        "ayah_number": 1,
+        "text_arabic": "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ",
+        "text_urdu": "سب طرح کی تعریف خدا ہی کو (سزاوار) ہے جو تمام مخلوقات کا پروردگار ہے",
+        "text_english": "[All] praise is [due] to Allah, Lord of the worlds -",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/2.mp3"
+      },
+      {
+        "id": 2,
+        "ayah_number": 2,
+        "text_arabic": "ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+        "text_urdu": "بڑا مہربان نہایت رحم والا",
+        "text_english": "The Entirely Merciful, the Especially Merciful,",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/3.mp3"
+      },
+      {
+        "id": 3,
+        "ayah_number": 3,
+        "text_arabic": "مَٰلِكِ يَوْمِ ٱلدِّينِ",
+        "text_urdu": "انصاف کے دن کا حاکم",
+        "text_english": "Sovereign of the Day of Recompense.",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/4.mp3"
+      },
+      {
+        "id": 4,
+        "ayah_number": 4,
+        "text_arabic": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+        "text_urdu": "ہم تیری ہی عبادت کرتے ہیں اور تجھ ہی سے مدد مانگتے ہیں",
+        "text_english": "It is You we worship and You we ask for help.",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/5.mp3"
+      },
+      {
+        "id": 5,
+        "ayah_number": 5,
+        "text_arabic": "ٱهْدِنَا ٱصِّرَٰطَ ٱلْمُسْتَقِيمَ",
+        "text_urdu": "ہم کو سیدھے رستے چلا",
+        "text_english": "Guide us to the straight path -",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/6.mp3"
+      },
+      {
+        "id": 6,
+        "ayah_number": 6,
+        "text_arabic": "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ",
+        "text_urdu": "ان لوگوں کے رستے جن پر تو اپنا فضل و کرم کرتا رہا نہ ان کے جن پر غصے ہوتا رہا اور نہ گمراہوں کے",
+        "text_english": "The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/7.mp3"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "surah_number": 112,
+    "meta": {
+      "surah_name_ar": "سُورَةُ الْإِخْلَاصِ",
+      "surah_name_en": "Al-Ikhlas",
+      "surah_meaning": "The Sincerity",
+      "audio_bismillah": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"
+    },
+    "ayahs": [
+      {
+        "id": 1,
+        "ayah_number": 1,
+        "text_arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ",
+        "text_urdu": "کہو کہ وہ (خدا) ایک ہے",
+        "text_english": "Say, He is Allah, [who is] One,",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/6222.mp3"
+      },
+      {
+        "id": 2,
+        "ayah_number": 2,
+        "text_arabic": "ٱللَّهُ ٱلصَّمَدُ",
+        "text_urdu": "خدا بےنیاز ہے",
+        "text_english": "Allah, the Eternal Refuge.",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/6223.mp3"
+      },
+      {
+        "id": 3,
+        "ayah_number": 3,
+        "text_arabic": "لَمْ يَلِدْ وَلَمْ يُولَدْ",
+        "text_urdu": "نہ اس نے کسی کو جنا اور نہ وہ کسی سے جنا گیا",
+        "text_english": "He neither begets nor is born,",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/6224.mp3"
+      },
+      {
+        "id": 4,
+        "ayah_number": 4,
+        "text_arabic": "وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ",
+        "text_urdu": "اور نہ کوئی اس کا ہمسر ہے",
+        "text_english": "Nor is there to Him any equivalent.",
+        "audio_url": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/6225.mp3"
+      }
+    ]
+  }
+]
