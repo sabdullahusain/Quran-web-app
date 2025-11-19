@@ -1,11 +1,68 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import allSurahsData from './data/quran_full.json'; 
 
+// --- STATIC DATA: NAMES OF THE 30 PARAHS ---
+const PARAH_NAMES = [
+    { id: 1, ar: "الم", en: "Alif Lam Meem" },
+    { id: 2, ar: "سَيَقُولُ", en: "Sayaqool" },
+    { id: 3, ar: "تِلْكَ ٱلْرُّسُلُ", en: "Tilkal Rusull" },
+    { id: 4, ar: "لَنْ تَنَالُوا", en: "Lan Tana Loo" },
+    { id: 5, ar: "وَٱلْمُحْصَنَاتُ", en: "Wal Mohsanat" },
+    { id: 6, ar: "لَا يُحِبُّ ٱللَّهُ", en: "La Yuhibbullah" },
+    { id: 7, ar: "وَإِذَا سَمِعُوا", en: "Wa Iza Samiu" },
+    { id: 8, ar: "وَلَوْ أَنَّنَا", en: "Wa Lau Annana" },
+    { id: 9, ar: "قَالَ ٱلْمَلَأُ", en: "Qalal Malao" },
+    { id: 10, ar: "وَٱعْلَمُوا", en: "Wa A'lamu" },
+    { id: 11, ar: "يَعْتَذِرُونَ", en: "Yatazeroon" },
+    { id: 12, ar: "وَمَا مِنْ دَآبَّةٍ", en: "Wa Mamin Da'abat" },
+    { id: 13, ar: "وَمَا أُبَرِّئُ", en: "Wa Ma Ubrioo" },
+    { id: 14, ar: "رُبَمَا", en: "Rubama" },
+    { id: 15, ar: "سُبْحَانَ ٱلَّذِى", en: "Subhanallazi" },
+    { id: 16, ar: "قَالَ أَلَمْ", en: "Qal Alam" },
+    { id: 17, ar: "ٱقْتَرَبَ لِلنَّاسِ", en: "Iqtaraba Linnas" },
+    { id: 18, ar: "قَدْ أَفْلَحَ", en: "Qadd Aflaha" },
+    { id: 19, ar: "وَقَالَ ٱلَّذِينَ", en: "Wa Qalallazina" },
+    { id: 20, ar: "أَمَّنْ خَلَقَ", en: "A'man Khalaqa" },
+    { id: 21, ar: "ٱتْلُ مَا أُوحِىَ", en: "Utlu Ma Oohi" },
+    { id: 22, ar: "وَمَنْ يَقْنُتْ", en: "Wa Manyaqnut" },
+    { id: 23, ar: "وَمَا لي", en: "Wa Mali" },
+    { id: 24, ar: "فَمَنْ أَظْلَمُ", en: "Faman Azlam" },
+    { id: 25, ar: "إِلَيْهِ يُرَدُّ", en: "Elahe Yuruddo" },
+    { id: 26, ar: "حم", en: "Ha Meem" },
+    { id: 27, ar: "قَالَ فَمَا خَطْبُكُم", en: "Qala Fama Khatbukum" },
+    { id: 28, ar: "قَدْ سَمِعَ ٱللَّهُ", en: "Qadd Sami Allah" },
+    { id: 29, ar: "تَبَارَكَ ٱلَّذِى", en: "Tabarakallazi" },
+    { id: 30, ar: "عَمَّ يَتَسَآءَلُونَ", en: "Amma Yatasa'aloon" }
+];
+
+// --- HELPER COMPONENT: HIGHLIGHT TEXT ---
+const HighlightedText = ({ text, highlight }) => {
+    if (!highlight.trim()) return text;
+    // Regex to find the match (case insensitive)
+    const regex = new RegExp(`(${highlight})`, 'gi');
+    // Split text by match
+    const parts = text.toString().split(regex);
+
+    return (
+        <span>
+            {parts.map((part, i) => 
+                part.toLowerCase() === highlight.toLowerCase() ? (
+                    // THE HIGHLIGHT STYLE (Amber Text)
+                    <span key={i} className="text-amber-400 font-bold bg-amber-900/30 rounded px-0.5">{part}</span>
+                ) : (
+                    part
+                )
+            )}
+        </span>
+    );
+};
+
 export default function App() {
   // --- STATE ---
   const [viewMode, setViewMode] = useState('surah'); 
   const [activeItem, setActiveItem] = useState(null); 
-  const [currentAyahIndex, setCurrentAyahIndex] = useState(-99); // -99 = Stopped
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [currentAyahIndex, setCurrentAyahIndex] = useState(-99); 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -17,14 +74,12 @@ export default function App() {
     return <div className="h-screen flex items-center justify-center text-white bg-slate-950">Data Loading...</div>;
   }
 
-  // --- INITIALIZATION ---
   useEffect(() => {
     if (!activeItem && allSurahsData.length > 0) {
-        setActiveItem(allSurahsData[0]);
+        setActiveItem(allSurahsData[0]); 
     }
   }, []);
 
-  // --- HELPERS ---
   const removeBismillah = (text) => {
      if (!text) return "";
      const bismillah = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
@@ -34,71 +89,72 @@ export default function App() {
      return text;
   };
 
-  // --- DATA PREP ---
+  const filteredList = useMemo(() => {
+      if (!searchQuery) {
+          if (viewMode === 'surah') return allSurahsData;
+          return PARAH_NAMES; 
+      }
+      const lowerQuery = searchQuery.toLowerCase();
+
+      if (viewMode === 'surah') {
+          return allSurahsData.filter(surah => 
+              surah.meta.surah_name_en.toLowerCase().includes(lowerQuery) || 
+              surah.meta.surah_name_ar.includes(searchQuery) ||              
+              String(surah.surah_number).includes(lowerQuery)                
+          );
+      } else {
+          return PARAH_NAMES.filter(p => 
+              String(p.id).includes(lowerQuery) || 
+              p.en.toLowerCase().includes(lowerQuery) ||
+              p.ar.includes(searchQuery)
+          );
+      }
+  }, [searchQuery, viewMode]);
+
   const displayAyahs = useMemo(() => {
     if (!activeItem) return [];
-
-    if (viewMode === 'surah') {
-        return activeItem.ayahs || [];
-    } 
-    else if (viewMode === 'parah') {
-        const parahNumber = activeItem;
-        const ayahsInParah = [];
-        
-        allSurahsData.forEach(surah => {
-            if (!surah.ayahs) return;
-            const matchingAyahs = surah.ayahs.filter(ayah => ayah.juz === parahNumber);
-            
-            if (matchingAyahs.length > 0) {
-                ayahsInParah.push({ 
-                    type: 'header', 
-                    text: surah.meta.surah_name_ar, 
-                    sub: surah.meta.surah_name_en,
-                    id: `header-${surah.id}`,
-                    surah_number: surah.surah_number 
-                });
-                ayahsInParah.push(...matchingAyahs);
-            }
-        });
-        return ayahsInParah;
-    }
-    return [];
+    if (viewMode === 'surah') return activeItem.ayahs || [];
+    
+    const parahNumber = activeItem;
+    const ayahsInParah = [];
+    allSurahsData.forEach(surah => {
+        if (!surah.ayahs) return;
+        const matchingAyahs = surah.ayahs.filter(ayah => ayah.juz === parahNumber);
+        if (matchingAyahs.length > 0) {
+            ayahsInParah.push({ 
+                type: 'header', 
+                text: surah.meta.surah_name_ar, 
+                sub: surah.meta.surah_name_en,
+                id: `header-${surah.id}`,
+                surah_number: surah.surah_number 
+            });
+            ayahsInParah.push(...matchingAyahs);
+        }
+    });
+    return ayahsInParah;
   }, [activeItem, viewMode]);
 
-  // --- MAIN PLAY/PAUSE CONTROLLER ---
   const toggleGlobalPlay = () => {
-      shouldAutoAdvance.current = true; // Ensure we are in "Sequence Mode"
-
+      shouldAutoAdvance.current = true; 
       if (isPlaying) {
-          // 1. If currently playing, just PAUSE.
           audioPlayer.current.pause();
           setIsPlaying(false);
       } else {
-          // 2. If paused...
           if (currentAyahIndex !== -99) {
-              // Resume from where we left off
               audioPlayer.current.play();
               setIsPlaying(true);
           } else {
-              // Start from the beginning
               playTrack(viewMode === 'surah' ? -1 : 0);
           }
       }
   };
 
-  // --- AUDIO LOGIC ---
   const playTrack = (index) => {
     let url = "";
     const items = displayAyahs.filter(item => item.type !== 'header'); 
-    
-    if (index === -1) {
-        url = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"; 
-    } else if (index >= 0 && index < items.length) {
-        url = items[index].audio_url;
-    } else {
-        stopAudio();
-        return;
-    }
+    if (index === -1) url = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"; 
+    else if (index >= 0 && index < items.length) url = items[index].audio_url;
+    else { stopAudio(); return; }
 
     audioPlayer.current.src = url;
     audioPlayer.current.play().catch(e => console.log("Audio Error:", e));
@@ -107,9 +163,7 @@ export default function App() {
   };
 
   const playSingleAyah = (index) => {
-    // Playing a single specific Ayah forces "One-Off" mode
     shouldAutoAdvance.current = false; 
-
     if (currentAyahIndex === index && isPlaying) {
         audioPlayer.current.pause();
         setIsPlaying(false);
@@ -129,24 +183,30 @@ export default function App() {
 
   useEffect(() => {
     const handleEnded = () => {
-        if (shouldAutoAdvance.current) {
-            playTrack(currentAyahIndex + 1);
-        } else {
-            // If in single mode, stop after one
-            stopAudio();
-        }
+        if (shouldAutoAdvance.current) playTrack(currentAyahIndex + 1);
+        else stopAudio();
     };
     audioPlayer.current.addEventListener('ended', handleEnded);
     return () => audioPlayer.current.removeEventListener('ended', handleEnded);
   }, [currentAyahIndex, displayAyahs]);
 
-  // --- UI HELPERS ---
-  // Determine what text to show on the main button
   const getMainButtonText = () => {
-      if (currentAyahIndex === -99) return "▶ Play All"; // Stopped
-      if (isPlaying) return "⏸ Pause"; // Playing
-      return "▶ Resume"; // Paused mid-way
+      if (currentAyahIndex === -99) return "▶ Play All"; 
+      if (isPlaying) return "⏸ Pause"; 
+      return "▶ Resume"; 
   };
+  
+  const getHeaderTitle = () => {
+      if (viewMode === 'surah') return activeItem?.meta?.surah_name_ar;
+      const p = PARAH_NAMES.find(p => p.id === activeItem);
+      return p ? p.ar : `Juz ${activeItem}`;
+  }
+
+  const getHeaderSubtitle = () => {
+      if (viewMode === 'surah') return activeItem?.meta?.surah_name_en;
+      const p = PARAH_NAMES.find(p => p.id === activeItem);
+      return p ? `Juz ${p.id} - ${p.en}` : `Recitation by Parah`;
+  }
 
   if (!activeItem && viewMode === 'surah') return null;
 
@@ -170,53 +230,94 @@ export default function App() {
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:relative lg:translate-x-0 lg:shadow-none
       `}>
-        <div className="p-4 bg-slate-900 border-b border-slate-800 pt-20 lg:pt-4">
-            <h2 className="text-xl font-bold text-emerald-400 mb-4 px-2">Browse By</h2>
-            <div className="flex bg-slate-800 rounded-lg p-1">
-                <button 
-                    onClick={() => { setViewMode('surah'); setActiveItem(allSurahsData[0]); stopAudio(); }}
-                    className={`flex-1 py-2 rounded-md text-sm font-bold transition-colors ${viewMode === 'surah' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                >
-                    Surah
-                </button>
-                <button 
-                    onClick={() => { setViewMode('parah'); setActiveItem(1); stopAudio(); }}
-                    className={`flex-1 py-2 rounded-md text-sm font-bold transition-colors ${viewMode === 'parah' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                >
-                    Parah
-                </button>
+        <div className="bg-slate-900 border-b border-slate-800 pt-20 lg:pt-0">
+            {/* Toggle */}
+            <div className="p-4 pb-2">
+                <div className="flex bg-slate-800 rounded-lg p-1">
+                    <button 
+                        onClick={() => { setViewMode('surah'); setSearchQuery(""); setActiveItem(allSurahsData[0]); stopAudio(); }}
+                        className={`flex-1 py-2 rounded-md text-sm font-bold transition-colors ${viewMode === 'surah' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        Surah
+                    </button>
+                    <button 
+                        onClick={() => { setViewMode('parah'); setSearchQuery(""); setActiveItem(1); stopAudio(); }}
+                        className={`flex-1 py-2 rounded-md text-sm font-bold transition-colors ${viewMode === 'parah' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        Parah
+                    </button>
+                </div>
+            </div>
+            {/* Search */}
+            <div className="px-4 pb-4">
+                <div className="relative">
+                    <input 
+                        type="text" 
+                        placeholder={viewMode === 'surah' ? "Search Surah..." : "Search Juz..."}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                    />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-slate-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
 
+        {/* LIST */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 pb-20">
             {viewMode === 'surah' ? (
-                allSurahsData.map((surah) => (
-                    <div 
-                        key={surah.id}
-                        onClick={() => { setActiveItem(surah); setIsSidebarOpen(false); stopAudio(); window.scrollTo({top:0, behavior:'smooth'}); }}
-                        className={`p-4 border-b border-slate-800/50 cursor-pointer hover:bg-slate-800 transition-all flex justify-between items-center ${activeItem?.id === surah.id ? 'bg-slate-800 border-l-4 border-l-emerald-500 pl-3' : 'pl-4'}`}
-                    >
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold bg-slate-800 text-slate-400 w-8 h-8 flex items-center justify-center rounded-full">{surah.surah_number}</span>
-                            <div>
-                                <p className={`font-medium ${activeItem?.id === surah.id ? 'text-emerald-400' : 'text-slate-300'}`}>{surah.meta.surah_name_en}</p>
-                                <p className="text-xs text-slate-500">{surah.meta.surah_meaning}</p>
+                // --- SURAH LIST ---
+                filteredList.length > 0 ? (
+                    filteredList.map((surah) => (
+                        <div 
+                            key={surah.id}
+                            onClick={() => { setActiveItem(surah); setIsSidebarOpen(false); stopAudio(); window.scrollTo({top:0, behavior:'smooth'}); }}
+                            className={`p-4 border-b border-slate-800/50 cursor-pointer hover:bg-slate-800 transition-all flex justify-between items-center ${activeItem?.id === surah.id ? 'bg-slate-800 border-l-4 border-l-emerald-500 pl-3' : 'pl-4'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold bg-slate-800 text-slate-400 w-8 h-8 flex items-center justify-center rounded-full">
+                                    <HighlightedText text={surah.surah_number} highlight={searchQuery} />
+                                </span>
+                                <div>
+                                    <p className={`font-medium ${activeItem?.id === surah.id ? 'text-emerald-400' : 'text-slate-300'}`}>
+                                        <HighlightedText text={surah.meta.surah_name_en} highlight={searchQuery} />
+                                    </p>
+                                    <p className="text-xs text-slate-500">{surah.meta.surah_meaning}</p>
+                                </div>
                             </div>
+                            <span className="font-serif text-slate-300">
+                                <HighlightedText text={surah.meta.surah_name_ar} highlight={searchQuery} />
+                            </span>
                         </div>
-                        <span className="font-serif text-slate-600">{surah.meta.surah_name_ar}</span>
-                    </div>
-                ))
+                    ))
+                ) : <div className="p-8 text-center text-slate-500 text-sm">No Surah found.</div>
             ) : (
-                Array.from({ length: 30 }, (_, i) => i + 1).map((num) => (
-                    <div 
-                        key={num}
-                        onClick={() => { setActiveItem(num); setIsSidebarOpen(false); stopAudio(); window.scrollTo({top:0, behavior:'smooth'}); }}
-                        className={`p-4 border-b border-slate-800/50 cursor-pointer hover:bg-slate-800 transition-all flex items-center gap-4 ${activeItem === num ? 'bg-slate-800 border-l-4 border-l-emerald-500 pl-3' : 'pl-4'}`}
-                    >
-                         <span className="text-xs font-bold bg-slate-800 text-slate-400 w-8 h-8 flex items-center justify-center rounded-full">{num}</span>
-                         <span className={`font-bold ${activeItem === num ? 'text-emerald-400' : 'text-slate-300'}`}>Juz (Parah) {num}</span>
-                    </div>
-                ))
+                // --- PARAH LIST ---
+                filteredList.length > 0 ? (
+                    filteredList.map((p) => (
+                        <div 
+                            key={p.id}
+                            onClick={() => { setActiveItem(p.id); setIsSidebarOpen(false); stopAudio(); window.scrollTo({top:0, behavior:'smooth'}); }}
+                            className={`p-4 border-b border-slate-800/50 cursor-pointer hover:bg-slate-800 transition-all flex justify-between items-center ${activeItem === p.id ? 'bg-slate-800 border-l-4 border-l-emerald-500 pl-3' : 'pl-4'}`}
+                        >
+                             <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold bg-slate-800 text-slate-400 w-8 h-8 flex items-center justify-center rounded-full">
+                                    <HighlightedText text={p.id} highlight={searchQuery} />
+                                </span>
+                                <span className={`font-bold ${activeItem === p.id ? 'text-emerald-400' : 'text-slate-300'}`}>
+                                    <HighlightedText text={p.en} highlight={searchQuery} />
+                                </span>
+                             </div>
+                             <span className="font-serif text-slate-300">
+                                 <HighlightedText text={p.ar} highlight={searchQuery} />
+                             </span>
+                        </div>
+                    ))
+                ) : <div className="p-8 text-center text-slate-500 text-sm">No Juz found.</div>
             )}
         </div>
       </aside>
@@ -226,16 +327,14 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth">
             <div className="max-w-5xl mx-auto w-full pb-32">
                 
-                {/* HEADER */}
                 <header className="text-center mb-10 mt-8 border-b border-slate-800 pb-10">
                     <h1 className="text-4xl lg:text-6xl font-bold text-emerald-500 font-serif mb-2">
-                        {viewMode === 'surah' ? activeItem?.meta?.surah_name_ar : `Juz ${activeItem}`}
+                        {getHeaderTitle()}
                     </h1>
                     <p className="text-slate-400 text-lg mb-6">
-                        {viewMode === 'surah' ? activeItem?.meta?.surah_name_en : 'Recitation by Parah'}
+                        {getHeaderSubtitle()}
                     </p>
                     
-                    {/* TOGGLE BUTTON */}
                     <button 
                         onClick={toggleGlobalPlay} 
                         className={`px-10 py-3 rounded-full font-bold text-lg transition-all shadow-lg transform hover:scale-105 active:scale-95 min-w-[200px] 
@@ -255,7 +354,6 @@ export default function App() {
                     )}
                 </header>
 
-                {/* AYAHS */}
                 <div className="flex flex-col gap-4">
                     {displayAyahs.map((item, realIndex) => {
                         if (item.type === 'header') {
@@ -284,8 +382,6 @@ export default function App() {
                                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-500">
                                         {item.surah_number}:{item.ayah_number}
                                     </span>
-                                    
-                                    {/* INDIVIDUAL BUTTON (Also works as toggle) */}
                                     <button 
                                         onClick={() => playSingleAyah(audioIndex)} 
                                         className={`text-xs font-bold px-4 py-2 rounded transition-colors ${isActive && isPlaying ? 'bg-amber-600/20 text-amber-500' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
