@@ -15,6 +15,12 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --font-quran: 'Amiri', serif;
+}
+
+.font-quran {
+  font-family: var(--font-quran);
 }
 
 a {
